@@ -158,11 +158,11 @@ else:
                                     
                                     base = alt.Chart(plot_data).encode(x=alt.X(f"{feature}:N", title=feature))
                                     
-                                    bar_total = base.mark_bar(opacity=0.3, color='gray').encode(
+                                    bar_total = base.mark_bar(opacity=0.4, color='#aab7c4').encode(
                                         y=alt.Y('Total (N):Q', title='Count')
                                     )
                                     
-                                    bar_count = base.mark_bar(opacity=0.8, color='steelblue').encode(
+                                    bar_count = base.mark_bar(opacity=0.9, color='#3498db').encode(
                                         y=alt.Y(f'{count_col}:Q', title='Count')
                                     )
                                     
