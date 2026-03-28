@@ -1,50 +1,61 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- 
+Sync Impact Report:
+- Version change: none → 1.0.0
+- List of modified principles:
+  - Added: I. Code Quality
+  - Added: II. Testing Standards
+  - Added: III. User Experience Consistency
+  - Added: IV. Performance Requirements
+- Added sections: Development Constraints, Quality Gates
+- Removed sections: N/A
+- Templates requiring updates (✅ updated / ⚠ pending):
+  - ⚠ .specify/templates/plan-template.md 
+  - ⚠ .specify/templates/spec-template.md 
+  - ⚠ .specify/templates/tasks-template.md
+- Follow-up TODOs: None.
+-->
+
+# CatDAP AIC Evaluator Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Code Quality
+- **Modularity**: The codebase must be highly modular. Separate data ingestion, the CatDAP AIC calculation logic, and Streamlit UI rendering into distinct modules.
+- **Linting & Formatting**: Enforce strict code formatting and linting using `Ruff` or `Black`.
+- **Typing**: All function signatures must include comprehensive type hinting (`mypy` static typing is encouraged).
+- **Resilience**: Implement defensive programming. Gracefully handle single-variance columns or extensive missing values without crashing.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Testing Standards
+- **Core Verification**: The AIC calculation method MUST have dedicated unit tests using `pytest` to ensure mathematical parity with the original R implementation.
+- **Edge Cases**: Include testing for edge cases covering identical distributions, single-value columns, and NA handling.
+- **Data Integrity**: Verify numeric binning (e.g., using deciles/quartiles via Pandas qcut) comprehensively.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. User Experience Consistency
+- **Localization**: The application is tailored for a global audience; all UI text, labels, warnings, and documentation MUST be written in clear, professional English.
+- **Navigation Structure**: 
+  - Tab 1 MUST present the aggregate macro view (Overall Feature Ranking). 
+  - Tab 2 MUST present vertically stacked micro views (Individual Feature Cross-Tabulations and charts in AIC-ranked order).
+- **Feedback**: Provide immediate visual feedback on interactions (e.g., `st.spinner`).
+- **Export**: One-click CSV/Excel export functionalities MUST be consistently placed with every major tabular output.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Performance Requirements
+- **Caching**: Aggressively use Streamlit caching (`@st.cache_data`) for data loading to prevent redundant reads.
+- **Computation**: Use vectorized Pandas operations (e.g., `pd.crosstab()`, `np.log()`) instead of loops for frequency calculation.
+- **UI Scalability**: Employ optimal UI presentation limits or lazy-loading if processed features exceed 50 to avoid browser rendering delays.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Development Constraints
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- **Generation Scoping**: Avoid arbitrary overwrites of operational code without explicit instruction to ensure manual review.
+- **Data Privacy**: Ensure uploaded datasets are strictly handled in-memory and not persisted permanently to the filesystem without explicitly configured storage options.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Quality Gates
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- **Linting & Tests**: Feature additions MUST pass the syntax linter and basic unit tests prior to integration.
+- **Dependencies**: All new libraries should be strongly justified to keep the package payload minimal and secure.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This Constitution MUST guide the design, structure, and requirements of the project and supersedes general templates.
+- Any amendment, such as introducing new analytical features beyond AIC (e.g., Gini impurity or standard ML feature importances), requires an update to this document.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-03-28
