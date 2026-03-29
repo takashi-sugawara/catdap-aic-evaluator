@@ -32,7 +32,7 @@ def apply_auto_binning(data: pd.DataFrame, explanatory_vars: list, max_bins: int
                     labels.append(f"{i+1}: ({lower} ~ {upper}]")
                     
                 processed_col = pd.qcut(processed[var], q=max_bins, labels=labels, duplicates='drop')
-                processed[var] = processed_col.cat.add_categories('NA_BIN').fillna('NA_BIN').astype(str)
+                processed[var] = processed_col.cat.add_categories('Missing').fillna('Missing').astype(str)
             except Exception:
                 pass # Return original variable if binning fails entirely
                 

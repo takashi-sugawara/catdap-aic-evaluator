@@ -76,6 +76,8 @@ else:
                 if auto_bin:
                     processed_df = apply_auto_binning(processed_df, valid_expl_vars)
                     
+                processed_df[valid_expl_vars] = processed_df[valid_expl_vars].fillna('Missing')
+                
                 aic_results = calculate_catdap_aic(processed_df, target_var, valid_expl_vars)
                 aic_results['AIC_Diff'] = aic_results['AIC_Diff'].round(2)
                 aic_results['Rank'] = range(1, len(aic_results) + 1)
@@ -91,7 +93,9 @@ else:
                         st.subheader("Global Explanatory Power (AIC Difference)")
                         st.markdown("**Lower** (more negative) AIC differences suggest statistically stronger interactions with the target.")
                         
-                        st.dataframe(aic_results.set_index('Rank'))
+                        display_aic = aic_results.set_index('Rank').copy()
+                        display_aic['AIC_Diff'] = display_aic['AIC_Diff'].map(lambda x: f"{x:.2f}")
+                        st.dataframe(display_aic)
                         csv_ranking = aic_results.to_csv(index=False).encode('utf-8')
                         st.download_button("Download Rankings CSV", data=csv_ranking, file_name="aic_rankings.csv", mime="text/csv")
                         
@@ -115,10 +119,10 @@ else:
                             for feature in top_features:
                                 aic_val = aic_results.loc[aic_results['Feature'] == feature, 'AIC_Diff'].values[0]
                                 rank_val = aic_results.loc[aic_results['Feature'] == feature, 'Rank'].values[0]
-                                st.markdown(f"### Rank {rank_val} - Feature: `{feature}` (AIC: {aic_val})")
+                                st.markdown(f"### Rank {rank_val} - Feature: `{feature}` (AIC: {aic_val:.2f})")
                                 
-                                # Clean up NA matrices for display specifically
-                                display_df = processed_df[[target_var, feature]].dropna()
+                                # Clean up NA matrices for display specifically (target NAs only)
+                                display_df = processed_df[[target_var, feature]].dropna(subset=[target_var])
                                 cross_tab = pd.crosstab(index=display_df[feature], columns=display_df[target_var])
                                 
                                 classes = sorted(cross_tab.columns.tolist())
@@ -141,7 +145,10 @@ else:
                                 elif len(classes) > 2:
                                     cross_tab.loc['All'] = cross_tab.sum(numeric_only=True)
                                 
-                                st.dataframe(cross_tab, use_container_width=True)
+                                display_cross_tab = cross_tab.copy()
+                                if 'Normalized Rate' in display_cross_tab.columns:
+                                    display_cross_tab['Normalized Rate'] = display_cross_tab['Normalized Rate'].map(lambda x: f"{float(x):.2f}")
+                                st.dataframe(display_cross_tab, use_container_width=True)
                                 
                                 # Export 
                                 csv_ct = cross_tab.to_csv().encode('utf-8')
@@ -158,15 +165,15 @@ else:
                                     
                                     base = alt.Chart(plot_data).encode(x=alt.X(f"{feature}:N", title=feature))
                                     
-                                    bar_total = base.mark_bar(opacity=0.4, color='#aab7c4').encode(
+                                    bar_total = base.mark_bar(opacity=0.4, color='#e2e8f0').encode(
                                         y=alt.Y('Total (N):Q', title='Count')
                                     )
                                     
-                                    bar_count = base.mark_bar(opacity=0.9, color='#3498db').encode(
+                                    bar_count = base.mark_bar(opacity=1.0, color='#38bdf8').encode(
                                         y=alt.Y(f'{count_col}:Q', title='Count')
                                     )
                                     
-                                    line_rate = base.mark_line(color='#d62728', point=alt.OverlayMarkDef(color='#d62728')).encode(
+                                    line_rate = base.mark_line(color='#ff6b6b', point=alt.OverlayMarkDef(color='#ff6b6b')).encode(
                                         y=alt.Y('Normalized Rate:Q', title='Normalized Rate', axis=alt.Axis(orient='right'))
                                     )
                                     
